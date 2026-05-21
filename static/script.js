@@ -1,70 +1,122 @@
-const cityInput = document.getElementById('city');
-const suggestionsList = document.getElementById('suggestions');
+const cityInput        = document.getElementById('city');
+const suggestionsList  = document.getElementById('suggestions');
 const getWeatherButton = document.getElementById('getWeather');
-const responseDiv = document.getElementById('response');
-const animationBackground = document.getElementById('animation-background'); // Nuevo elemento para las animaciones
+const responseDiv      = document.getElementById('response');
+const animationBackground = document.getElementById('animation-background');
 
-// Evento para la barra de sugerencias
-cityInput.addEventListener('input', function() {
-    const inputValue = this.value.toLowerCase();
-    if (inputValue.length > 2) {
-        fetch(`/suggest?city=${inputValue}`)
-            .then(response => response.json())
-            .then(cities => showSuggestions(cities))
-            .catch(error => console.error('Error:', error));
-    } else {
-        suggestionsList.innerHTML = '';
-    }
+// ─── Estado ───────────────────────────────────────────────────────────────────
+let selectedCity  = null;
+let debounceTimer = null;
+
+// ─── Autocompletado con Open-Meteo Geocoding ──────────────────────────────────
+cityInput.addEventListener('input', function () {
+    const query = this.value.trim();
+    selectedCity = null;
+    clearTimeout(debounceTimer);
+    suggestionsList.innerHTML = '';
+
+    if (query.length < 3) return;
+
+    debounceTimer = setTimeout(() => {
+        fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=10&language=es&format=json`)
+            .then(res => res.json())
+            .then(data => {
+                const results = data.results || [];
+
+                // Deduplicar por nombre+país y ordenar por población
+                const seen = new Set();
+                const final = results
+                    .sort((a, b) => (b.population || 0) - (a.population || 0))
+                    .filter(c => {
+                        const key = `${c.name.toLowerCase()}-${c.country_code}`;
+                        if (seen.has(key)) return false;
+                        seen.add(key);
+                        return true;
+                    })
+                    .slice(0, 4);
+
+                showSuggestions(final);
+            })
+            .catch(err => console.error('Error en suggest:', err));
+    }, 300);
 });
 
-// Mostrar las sugerencias de ciudades
+// ─── Mostrar sugerencias ──────────────────────────────────────────────────────
 function showSuggestions(cities) {
     suggestionsList.innerHTML = '';
-    if (cities.length > 0) {
-        cities.forEach(city => {
-            const li = document.createElement('li');
-            li.textContent = city;
-            li.addEventListener('click', function() {
-                cityInput.value = city;
-                suggestionsList.innerHTML = '';
-            });
-            suggestionsList.appendChild(li);
+    if (!cities || cities.length === 0) return;
+
+    cities.forEach(city => {
+        const li    = document.createElement('li');
+        const label = `${city.name} (${city.country_code})`;
+        li.textContent = label;
+
+        li.addEventListener('click', function () {
+            cityInput.value = label;
+            selectedCity = {
+                name:    city.name,
+                country: city.country_code,
+                lat:     city.latitude,
+                lon:     city.longitude,
+            };
+            suggestionsList.innerHTML = '';
         });
-    }
+
+        suggestionsList.appendChild(li);
+    });
 }
 
-// Evento para obtener el clima
-getWeatherButton.addEventListener('click', function() {
-    const city = cityInput.value;
-    if (city) {
-        responseDiv.innerHTML = `Buscando el clima para ${city}...`;
-        fetch(`/weather?city=${city}`)
-            .then(response => response.json())
-            .then(data => {
-                responseDiv.innerHTML = `
-                    <h2>Clima en ${data.city}</h2>
-                    <p>Temperatura: ${data.temperature}°C</p>
-                    <p>Descripción: ${data.description}</p>
-                    <p>Humedad: ${data.humidity}%</p>
-                `;
-                // Aquí se llama a la función de animación
-                updateBackgroundAnimation(data.temperature, data.description);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                responseDiv.innerHTML = 'Error al obtener el clima. Por favor, intente de nuevo.';
-            });
-    } else {
-        alert("Por favor, ingrese una ciudad.");
-    }
+// ─── Obtener clima ────────────────────────────────────────────────────────────
+getWeatherButton.addEventListener('click', fetchWeather);
+
+cityInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') fetchWeather();
 });
 
-// Añade la animación de fondo
+function fetchWeather() {
+    const rawInput = cityInput.value.trim();
+
+    if (!rawInput) {
+        alert('Por favor, ingrese una ciudad.');
+        return;
+    }
+
+    responseDiv.innerHTML = 'Buscando el clima...';
+
+    const url = selectedCity
+        ? `/weather?lat=${selectedCity.lat}&lon=${selectedCity.lon}`
+        : `/weather?city=${encodeURIComponent(rawInput)}`;
+
+    fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            if (data.error) {
+                responseDiv.innerHTML = `<p class="error">⚠️ ${data.error}</p>`;
+                return;
+            }
+
+            responseDiv.innerHTML = `
+                <h2>Clima en ${data.city}, ${data.country}</h2>
+                <p>Temperatura: ${data.temperature}°C</p>
+                <p>Sensación térmica: ${data.feels_like}°C</p>
+                <p>Descripción: ${data.description}</p>
+                <p>Humedad: ${data.humidity}%</p>
+                <p>Viento: ${data.wind_speed} m/s</p>
+            `;
+
+            updateBackgroundAnimation(data.temperature, data.description);
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            responseDiv.innerHTML = 'Error al obtener el clima. Por favor, intente de nuevo.';
+        });
+}
+
+// ─── Animaciones (sin cambios) ────────────────────────────────────────────────
 function updateBackgroundAnimation(temperature, description) {
-    animationBackground.innerHTML = ''; // Limpiar animaciones anteriores
+    animationBackground.innerHTML = '';
     animationBackground.className = '';
-    
-    // Añadir nubes
+
     for (let i = 0; i < 3; i++) {
         const cloud = document.createElement('div');
         cloud.className = 'cloud';
@@ -72,8 +124,7 @@ function updateBackgroundAnimation(temperature, description) {
         cloud.style.animationDelay = `${Math.random() * 15}s`;
         animationBackground.appendChild(cloud);
     }
-    
-    // Cambio de fondo según la temperatura
+
     if (temperature < 10) {
         animationBackground.classList.add('cold-bg');
     } else if (temperature > 25) {
@@ -85,7 +136,6 @@ function updateBackgroundAnimation(temperature, description) {
         animationBackground.classList.add('warm-bg');
     }
 
-    // Animación de lluvia si la descripción incluye "rain" o "lluvia"
     if (description.toLowerCase().includes('rain') || description.toLowerCase().includes('lluvia')) {
         for (let i = 0; i < 100; i++) {
             const raindrop = document.createElement('div');
@@ -97,8 +147,8 @@ function updateBackgroundAnimation(temperature, description) {
     }
 }
 
-// Mantén el resto del código existente para cerrar la lista de sugerencias
-document.addEventListener('click', function(e) {
+// ─── Cerrar sugerencias al hacer click fuera ─────────────────────────────────
+document.addEventListener('click', function (e) {
     if (e.target !== cityInput && e.target !== suggestionsList) {
         suggestionsList.innerHTML = '';
     }
