@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Consulta el clima de cualquier ciudad en tiempo real">
-    <title>Consulta el Clima</title>
+    <title>Clima</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
@@ -19,7 +19,7 @@
             <input type="text" id="city" placeholder="Ingrese la ciudad">
             <ul id="suggestions" class="suggestions"></ul>
         </div>
-        <button id="getWeather">Obtener Clima</button>
+        <button id="getWeather">ver Clima</button>
         <div id="response"></div>
     </div>
     <script src="{{ url_for('static', filename='script.js') }}"></script>

@@ -48,6 +48,6 @@ proyecto-consulta-clima/
     ├── styles.css        # Archivo CSS para los estilos
     └── script.js         # Archivo JavaScript para la lógica de la aplicación
 
-
+creado por sebastian molina 
 
 
