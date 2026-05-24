@@ -1,195 +1,327 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --transition: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  --card-bg: rgba(255,255,255,0.1);
+  --card-border: rgba(255,255,255,0.18);
+  --text-main: #fff;
+  --text-muted: rgba(255,255,255,0.55);
+}
+
 body {
-    font-family: 'Poppins', sans-serif;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background: linear-gradient(45deg, #6ab7ff, #ffa3a3);
-    background-size: 400% 400%;
-    animation: gradientBG 15s ease infinite;
-}
-@keyframes gradientBG {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-.container {
-    background-color: rgba(255, 255, 255, 0.8);
-    border-radius: 20px;
-    padding: 40px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    max-width: 400px;
-    width: 100%;
-    text-align: center;
-}
-h1 {
-    color: #333;
-    margin-bottom: 30px;
-    font-size: 28px;
-}
-.input-group {
-    margin-bottom: 20px;
-    position: relative;
-}
-input {
-    width: calc(100% - 24px);
-    padding: 12px;
-    border: 2px solid #6ab7ff;
-    border-radius: 25px;
-    font-size: 16px;
-    transition: all 0.3s ease;
-}
-input:focus {
-    outline: none;
-    border-color: #ff9a9e;
-    box-shadow: 0 0 10px rgba(255,154,158,0.3);
-}
-button {
-    width: 100%;
-    padding: 12px;
-    background-color: #6ab7ff;
-    color: white;
-    border: none;
-    border-radius: 25px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(106,183,255,0.3);
-}
-button:hover {
-    background-color: #ff9a9e;
-    transform: translateY(-2px);
-}
-#response {
-    margin-top: 20px;
-    padding: 15px;
-    background-color: rgba(255,255,255,0.9);
-    border-radius: 15px;
-    font-size: 16px;
-    color: #333;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
-}
-.weather-icon {
-    font-size: 48px;
-    margin-bottom: 20px;
-}
-@keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-    100% { transform: translateY(0px); }
-}
-.cloud { animation: float 3s ease-in-out infinite; }
-.sun { animation: float 4s ease-in-out infinite; }
-.rain { animation: float 2s ease-in-out infinite; }
-
-/* Estilos para la barra de sugerencias */
-.suggestions {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 0 0 15px 15px;
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-    max-height: 200px;
-    overflow-y: auto;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    z-index: 1000;
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition);
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  overflow-x: hidden;
 }
 
-.suggestions li {
-    padding: 10px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.suggestions li:hover {
-    background-color: #f0f0f0;
-}
+/* ── Fondo dinámico ─────────────────────────────────────────── */
 #animation-background {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    overflow: hidden;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  transition: background var(--transition);
+  overflow: hidden;
 }
 
-/* Nubes */
-.cloud {
-    position: absolute;
-    width: 200px;
-    height: 60px;
-    background-color: #fff;
-    border-radius: 200px;
-    animation: moveCloud 30s infinite linear;
-}
+body.weather-clear   #animation-background { background: linear-gradient(160deg, #0f4c81 0%, #1976d2 40%, #64b5f6 100%); }
+body.weather-hot     #animation-background { background: linear-gradient(160deg, #7b3000 0%, #c1601a 40%, #e8956d 100%); }
+body.weather-rain    #animation-background { background: linear-gradient(160deg, #1a2332 0%, #263545 45%, #37474f 100%); }
+body.weather-clouds  #animation-background { background: linear-gradient(160deg, #455a64 0%, #607d8b 50%, #90a4ae 100%); }
+body.weather-snow    #animation-background { background: linear-gradient(160deg, #1a237e 0%, #283593 40%, #7986cb 100%); }
+body.weather-night   #animation-background { background: linear-gradient(160deg, #0a0a1a 0%, #0d1b2a 50%, #1a2a4a 100%); }
+body.weather-default #animation-background { background: linear-gradient(160deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); }
 
-.cloud::before, .cloud::after {
-    content: '';
-    position: absolute;
-    background-color: #fff;
-    border-radius: 50%;
-}
-
-.cloud::before {
-    width: 80px;
-    height: 80px;
-    top: -40px;
-    left: 10px;
-}
-
-.cloud::after {
-    width: 100px;
-    height: 100px;
-    top: -50px;
-    right: 30px;
-}
-
-@keyframes moveCloud {
-    0% { transform: translateX(-200px); }
-    100% { transform: translateX(calc(100vw + 200px)); }
-}
-
-/* Lluvia */
+/* ── Partículas ─────────────────────────────────────────────── */
 .raindrop {
-    position: absolute;
-    width: 2px;
-    height: 20px;
-    background-color: #00f;
-    animation: fallRain 2s infinite linear;
+  position: absolute;
+  width: 1.5px;
+  height: 24px;
+  background: linear-gradient(to bottom, transparent, rgba(174,214,241,0.7));
+  border-radius: 2px;
+  animation: rain 1.2s linear infinite;
+  top: -30px;
+}
+@keyframes rain { to { transform: translateY(110vh) translateX(-20px); } }
+
+.cloud {
+  position: absolute;
+  width: 180px;
+  height: 50px;
+  background: rgba(255,255,255,0.12);
+  border-radius: 100px;
+  animation: driftCloud linear infinite;
+  filter: blur(2px);
+}
+.cloud::before, .cloud::after { content: ''; position: absolute; background: rgba(255,255,255,0.12); border-radius: 50%; }
+.cloud::before { width: 70px; height: 70px; top: -35px; left: 15px; }
+.cloud::after  { width: 90px; height: 90px; top: -45px; right: 25px; }
+@keyframes driftCloud { from { transform: translateX(-250px); } to { transform: translateX(110vw); } }
+
+.snowflake {
+  position: absolute;
+  width: 6px; height: 6px;
+  background: rgba(255,255,255,0.8);
+  border-radius: 50%;
+  animation: snowfall linear infinite;
+  top: -10px;
+}
+@keyframes snowfall { to { transform: translateY(110vh) rotate(360deg); } }
+
+.star {
+  position: absolute;
+  background: #fff;
+  border-radius: 50%;
+  animation: twinkle ease-in-out infinite alternate;
+}
+@keyframes twinkle {
+  from { opacity: 0.2; transform: scale(0.8); }
+  to   { opacity: 1;   transform: scale(1.2); }
 }
 
-@keyframes fallRain {
-    0% { transform: translateY(-20px); }
-    100% { transform: translateY(calc(100vh + 20px)); }
+/* ── Layout dos columnas ────────────────────────────────────── */
+.container {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 960px;
+  padding: 48px 40px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+  min-height: 100vh;
 }
 
-/* Sol */
-.sun {
-    position: absolute;
-    top: 50px;
-    left: 70%;
-    transform: translateX(-50%);
-    width: 100px;
-    height: 100px;
-    background: radial-gradient(circle, #ffff00, #ff9900);
-    border-radius: 50%;
-    box-shadow: 0 0 50px #ffff00;
+/* ── Columna izquierda ──────────────────────────────────────── */
+.col-left {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-/* Fondos */
-.cold-bg {
-    background: linear-gradient(to bottom, #4a6fa5, #166b8b);
+.col-left h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 72px;
+  font-weight: 400;
+  color: var(--text-main);
+  line-height: 1;
+  letter-spacing: -1px;
 }
 
-.warm-bg {
-    background: linear-gradient(to bottom, #87ceeb, #e4f1fe);
+.col-left .subtitle {
+  font-size: 17px;
+  color: var(--text-muted);
+  font-weight: 300;
+  line-height: 1.6;
+  max-width: 320px;
+}
+
+.powered-by {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.3);
+  font-weight: 300;
+  margin-top: 8px;
+}
+
+.powered-by .dot { opacity: 0.4; }
+
+/* ── Columna derecha ────────────────────────────────────────── */
+.col-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Buscador ───────────────────────────────────────────────── */
+.search-wrapper {
+  position: relative;
+}
+
+#city {
+  width: 100%;
+  padding: 16px 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 300;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: border-color 0.3s, box-shadow 0.3s;
+  outline: none;
+}
+#city::placeholder { color: rgba(255,255,255,0.35); }
+#city:focus {
+  border-color: rgba(255,255,255,0.4);
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.05);
+}
+
+/* ── Sugerencias ────────────────────────────────────────────── */
+.suggestions {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0; right: 0;
+  background: rgba(15,20,35,0.95);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  list-style: none;
+  overflow: hidden;
+  z-index: 100;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+.suggestions li {
+  padding: 14px 20px;
+  color: rgba(255,255,255,0.8);
+  font-size: 14px;
+  font-weight: 300;
+  cursor: pointer;
+  transition: background 0.2s;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.suggestions li:last-child { border-bottom: none; }
+.suggestions li:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+/* ── Botón ──────────────────────────────────────────────────── */
+#getWeather {
+  width: 100%;
+  padding: 16px;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+#getWeather:hover  { background: rgba(255,255,255,0.24); transform: translateY(-1px); }
+#getWeather:active { transform: translateY(0); }
+
+/* ── Tarjeta resultado ──────────────────────────────────────── */
+#response:empty { display: none; }
+
+.weather-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  padding: 28px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.weather-card .city-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: 26px;
+  font-weight: 400;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+.weather-card .description {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 300;
+  margin-bottom: 16px;
+  text-transform: capitalize;
+}
+.weather-card .temp-main {
+  font-family: 'DM Serif Display', serif;
+  font-size: 64px;
+  font-weight: 400;
+  color: var(--text-main);
+  line-height: 1;
+  margin-bottom: 20px;
+  letter-spacing: -2px;
+}
+.weather-card .temp-main span { font-size: 28px; opacity: 0.6; letter-spacing: 0; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+.stat-item {
+  background: rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 12px 10px;
+  text-align: center;
+}
+.stat-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+.stat-value {
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--text-main);
+}
+.stat-unit { font-size: 11px; opacity: 0.6; }
+
+/* ── Estados ────────────────────────────────────────────────── */
+.loading-text {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 300;
+  padding: 12px 0;
+}
+.error-msg {
+  color: rgba(255,120,100,0.9);
+  font-size: 14px;
+  font-weight: 300;
+  padding: 12px 0;
+}
+
+/* ── Footer ─────────────────────────────────────────────────── */
+footer {
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+footer p {
+  font-size: 12px;
+  color: rgba(255,255,255,0.3);
+  font-weight: 300;
+}
+footer a {
+  color: rgba(255,255,255,0.5);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+footer a:hover { color: rgba(255,255,255,0.85); }
+
+/* ── Móvil: una columna ─────────────────────────────────────── */
+@media (max-width: 700px) {
+  .container {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding: 40px 20px;
+    align-items: flex-start;
+    min-height: auto;
+  }
+  .col-left h1 { font-size: 48px; }
+  .col-left .subtitle { max-width: 100%; }
 }

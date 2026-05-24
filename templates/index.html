@@ -1,27 +1,44 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Consulta el clima de cualquier ciudad en tiempo real">
-    <title>Clima</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Consulta el clima de cualquier ciudad en tiempo real">
+  <title>Clima</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
-<body>
-    <div id="animation-background"></div>
-    <div class="container">
-        <div class="weather-icon">
-            <span class="sun">☀️</span>
-        </div>
-        <h1>Consulta el Clima</h1>
-        <div class="input-group">
-            <input type="text" id="city" placeholder="Ingrese la ciudad">
-            <ul id="suggestions" class="suggestions"></ul>
-        </div>
-        <button id="getWeather">ver Clima</button>
-        <div id="response"></div>
+<body class="weather-default">
+  <div id="animation-background"></div>
+  <div class="container">
+
+    <!-- Columna izquierda: header -->
+    <div class="col-left">
+      <h1>El Clima</h1>
+      <p class="subtitle">Consulta el clima de cualquier ciudad del mundo en tiempo real.</p>
+      <div class="powered-by">
+        <span>Datos vía OpenWeatherMap</span>
+        <span class="dot">·</span>
+        <span>Flask + Python</span>
+      </div>
     </div>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+    <!-- Columna derecha: buscador + resultado -->
+    <div class="col-right">
+      <div class="search-wrapper">
+        <input type="text" id="city" placeholder="Ciudad..." autocomplete="off">
+        <ul id="suggestions" class="suggestions"></ul>
+      </div>
+      <button id="getWeather">Ver clima</button>
+      <div id="response"></div>
+
+      <footer>
+        <p>Hecho por Sebastián · <a href="https://github.com/sebas8884567/weather-app" target="_blank">Ver código en GitHub ↗</a></p>
+      </footer>
+    </div>
+
+  </div>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
